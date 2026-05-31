@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+<title>Pain → Progress</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0e0e0f;
+  --surface: #161618;
+  --surface2: #1e1e21;
+  --border: #2a2a2e;
+  --accent: #c8a96e;
+  --accent2: #7c6fcd;
+  --pain: #e05c5c;
+  --principle: #5cba8a;
+  --text: #e8e6e0;
+  --muted: #7a7870;
+  --dim: #4a4845;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; }
+
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background: radial-gradient(circle at 20% 10%, rgba(200,169,110,0.05) 0%, transparent 55%),
+              radial-gradient(circle at 80% 90%, rgba(124,111,205,0.05) 0%, transparent 55%);
+  pointer-events: none; z-index: 0;
+}
+
+.app { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 20px 100px; }
+
+/* ── HEADER ── */
+.header { padding: 40px 0 28px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
+.header-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
+.header h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 6vw, 36px); font-weight: 400; line-height: 1.15; }
+.header h1 em { font-style: italic; color: var(--accent); }
+.header-sub { margin-top: 10px; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+
+/* ── TABS ── */
+.tabs { display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px; margin-bottom: 28px; }
+.tab { flex: 1; padding: 9px 8px; background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 5px; transition: all 0.18s; }
+.tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.tab:hover:not(.active) { color: var(--text); }
+
+/* ── PANELS ── */
+.panel { display: none; animation: up 0.25s ease; }
+.panel.active { display: block; }
+@keyframes up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── CARDS ── */
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s; }
+.card:focus-within { border-color: rgba(200,169,110,0.4); }
+
+/* ── SECTION LABEL ── */
+.section-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
+.field-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 8px; }
+
+/* ── TYPE CHIPS ── */
+.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
+.chip { padding: 6px 13px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.15s; }
+.chip:hover { border-color: var(--accent); color: var(--accent); }
+.chip.on { background: var(--accent); border-color: var(--accent); color: #0e0e0f; font-weight: 500; }
+
+/* ── INPUTS ── */
+textarea, input[type="text"], input[type="email"] {
+  width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px;
+  padding: 13px 15px; resize: none; outline: none; transition: border-color 0.2s; line-height: 1.65;
+}
+textarea:focus, input[type="text"]:focus, input[type="email"]:focus { border-color: var(--accent); }
+textarea { margin-bottom: 14px; }
+
+/* ── INTENSITY ── */
+.intensity-row { display: flex; align-items: center; gap: 12px; margin: 12px 0 18px; }
+.intensity-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
+.dots { display: flex; gap: 6px; }
+.dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: none; cursor: pointer; transition: all 0.15s; }
+.dot:hover { border-color: var(--pain); }
+.dot.on { background: var(--pain); border-color: var(--pain); box-shadow: 0 0 8px rgba(224,92,92,0.3); }
+
+/* ── BUTTONS ── */
+.btn { padding: 11px 22px; border-radius: 8px; border: none; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.07em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px; }
+.btn-gold { background: var(--accent); color: #0e0e0f; font-weight: 500; }
+.btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
+.btn-ghost:hover { border-color: var(--accent); }
+.btn-green { background: var(--principle); color: #0e0e0f; font-weight: 500; }
+.btn-green:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+.row-end { display: flex; justify-content: flex-end; gap: 10px; }
+.mt-14 { margin-top: 14px; }
+
+/* ── LOG ENTRIES ── */
+.logs { display: flex; flex-direction: column; gap: 10px; }
+.log-entry { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--pain); border-radius: 8px; padding: 14px 16px; }
+.log-entry.done { border-left-color: var(--principle); }
+.log-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.log-badge { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
+.log-time { font-size: 10px; color: var(--dim); }
+.log-text { font-size: 13px; color: var(--text); line-height: 1.6; }
+.mini-dots { display: flex; gap: 3px; margin-top: 7px; }
+.mini-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
+.mini-dot.on { background: var(--pain); }
+.log-principle-tag { margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--principle); font-style: italic; }
+.log-principle-tag::before { content: '→ '; font-style: normal; opacity: 0.5; }
+
+/* ── REFLECT PANEL ── */
+.reflect-intro { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; font-size: 13px; color: var(--muted); line-height: 1.8; }
+.reflect-intro strong { color: var(--accent); font-weight: 400; }
+.reflect-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 14px; }
+.pain-recap { font-size: 13px; color: var(--text); line-height: 1.6; padding: 11px 14px; background: var(--bg); border-radius: 6px; border-left: 2px solid var(--pain); margin-bottom: 14px; }
+.ai-hint { font-size: 11px; color: var(--accent2); margin-bottom: 10px; letter-spacing: 0.04em; }
+.ai-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: var(--accent2); background: rgba(124,111,205,0.1); border: 1px solid rgba(124,111,205,0.2); border-radius: 100px; padding: 4px 10px; margin-bottom: 14px; }
+.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.2} }
+
+/* ── PRINCIPLES ── */
+.principle-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--principle); border-radius: 8px; padding: 18px; margin-bottom: 10px; }
+.p-date { font-size: 10px; color: var(--dim); margin-bottom: 7px; }
+.p-text { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--text); line-height: 1.65; font-style: italic; }
+.p-context { font-size: 11px; color: var(--muted); margin-top: 7px; font-family: 'DM Mono', monospace; }
+
+/* ── SETTINGS ── */
+.settings-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 16px; }
+.settings-block h3 { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; font-weight: 400; }
+.settings-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; font-size: 12px; color: var(--muted); }
+.settings-row:last-child { margin-bottom: 0; }
+.settings-row input { max-width: 260px; font-size: 12px; padding: 9px 12px; }
+.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 100px; cursor: pointer; transition: 0.2s; }
+.toggle input:checked + .toggle-track { background: var(--principle); }
+.toggle-thumb { position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+
+/* ── EMPTY ── */
+.empty { text-align: center; padding: 44px 20px; color: var(--dim); font-size: 12px; line-height: 2.2; }
+.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.35; }
+
+/* ── COUNT BADGE ── */
+.count { background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 2px 9px; font-size: 10px; color: var(--muted); margin-left: 7px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 11px 22px; font-size: 12px; color: var(--text); transition: transform 0.3s ease; z-index: 200; white-space: nowrap; max-width: 90vw; text-align: center; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── SPINNER ── */
+.spin { display: inline-block; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,0.2); border-top-color: currentColor; border-radius: 50%; animation: s 0.7s linear infinite; }
+@keyframes s { to { transform: rotate(360deg); } }
+
+/* ── DIVIDER ── */
+hr.divider { border: none; border-top: 1px solid var(--border); margin: 26px 0; }
+
+@media (max-width: 480px) {
+  .header { padding: 28px 0 20px; }
+  .card, .reflect-item, .settings-block { padding: 18px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="header-eyebrow">Daily Practice</div>
+    <h1>Pain + Reflection<br>= <em>Progress</em></h1>
+    <div class="header-sub">Log what hurts · Reflect tonight · Build a principle</div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="go('log')">Log</button>
+    <button class="tab" onclick="go('reflect')">Reflect</button>
+    <button class="tab" onclick="go('principles')">Principles</button>
+    <button class="tab" onclick="go('settings')">Settings</button>
+  </div>
+
+  <!-- ════ LOG ════ -->
+  <div class="panel active" id="panel-log">
+    <div class="card">
+      <div class="section-label">What type?</div>
+      <div class="chips" id="chips">
+        <button class="chip" onclick="pickType(this,'Emotional')">Emotional</button>
+        <button class="chip" onclick="pickType(this,'Conflict')">Conflict</button>
+        <button class="chip" onclick="pickType(this,'Decision')">Decision</button>
+        <button class="chip" onclick="pickType(this,'Failure')">Failure</button>
+        <button class="chip" onclick="pickType(this,'Frustration')">Frustration</button>
+        <button class="chip" onclick="pickType(this,'Fear')">Fear</button>
+        <button class="chip" onclick="pickType(this,'Regret')">Regret</button>
+        <button class="chip on" onclick="pickType(this,'Other')">Other</button>
+      </div>
+
+      <div class="field-label">What happened? (just dump it)</div>
+      <textarea id="pain-text" rows="4" placeholder="Describe the pain or discomfort. No filter needed."></textarea>
+
+      <div class="intensity-row">
+        <span class="intensity-label">Intensity</span>
+        <div class="dots" id="dots">
+          <button class="dot" onclick="setInt(1)"></button>
+          <button class="dot" onclick="setInt(2)"></button>
+          <button class="dot" onclick="setInt(3)"></button>
+          <button class="dot" onclick="setInt(4)"></button>
+          <button class="dot" onclick="setInt(5)"></button>
+        </div>
+        <span id="int-text" style="font-size:11px;color:var(--dim)">—</span>
+      </div>
+
+      <div class="row-end">
+        <button class="btn btn-gold" onclick="logPain()">Log it →</button>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div class="section-label">Today <span class="count" id="log-count">0</span></div>
+    <div class="logs" id="logs-list">
+      <div class="empty"><div class="empty-icon">◎</div>Nothing logged yet.<br>Capture pain as it happens — it only takes 30 sec.</div>
+    </div>
+  </div>
+
+  <!-- ════ REFLECT ════ -->
+  <div class="panel" id="panel-reflect">
+    <div class="reflect-intro">
+      <strong>Before you sleep</strong> — go through today's moments one by one. Hit <em>AI Reflect</em> to get questions and a principle draft, then write your final version.
+    </div>
+    <div class="ai-badge"><span class="pulse"></span> AI-assisted · powered by Claude</div>
+    <div id="reflect-list">
+      <div class="empty"><div class="empty-icon">◑</div>No logs to reflect on yet.<br>Go log some pain first.</div>
+    </div>
+  </div>
+
+  <!-- ════ PRINCIPLES ════ -->
+  <div class="panel" id="panel-principles">
+    <div class="section-label">Your Principles <span class="count" id="p-count">0</span></div>
+    <div id="p-list">
+      <div class="empty"><div class="empty-icon">◈</div>No principles yet.<br>Complete a reflection to create your first one.</div>
+    </div>
+  </div>
+
+  <!-- ════ SETTINGS ════ -->
+  <div class="panel" id="panel-settings">
+    <div class="settings-block">
+      <h3>Google Sheet Sync</h3>
+      <div class="field-label" style="margin-bottom:10px">Paste your Google Apps Script Web App URL below to sync all logs and principles to a Google Sheet automatically.</div>
+      <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/..." oninput="saveSetting('sheets-url',this.value)">
+      <div style="margin-top:12px;">
+        <a href="#" onclick="openSheetsGuide(); return false;" style="font-size:11px;color:var(--accent2);text-decoration:none;">How to set this up ↗</a>
+      </div>
+    </div>
+
+    <div class="settings-block">
+      <h3>Email Summaries</h3>
+      <div class="settings-row">
+        <span>Your email (for nightly summary)</span>
+        <input type="email" id="user-email" placeholder="you@email.com" oninput="saveSetting('user-email',this.value)" style="max-width:200px">
+      </div>
+    </div>
+
+    <div class="settings-block">
+      <h3>Data</h3>
+      <div class="settings-row">
+        <span>Export all data as JSON</span>
+        <button class="btn btn-ghost" onclick="exportData()" style="font-size:11px;padding:8px 14px;">Export</button>
+      </div>
+      <div class="settings-row">
+        <span>Clear all data</span>
+        <button class="btn btn-ghost" onclick="clearData()" style="font-size:11px;padding:8px 14px;color:var(--pain);border-color:var(--pain);">Clear</button>
+      </div>
+    </div>
+
+    <div id="sheets-guide" style="display:none" class="settings-block">
+      <h3>Setting up Google Sheet Sync</h3>
+      <div style="font-size:12px;color:var(--muted);line-height:1.9;">
+        1. Open <strong style="color:var(--text)">Google Sheets</strong> → create a new sheet<br>
+        2. Go to <strong style="color:var(--text)">Extensions → Apps Script</strong><br>
+        3. Paste the script below and click Deploy → New Deployment<br>
+        4. Copy the Web App URL and paste it above
+      </div>
+      <textarea rows="8" readonly style="margin-top:14px;font-size:11px;opacity:0.7" id="apps-script-code"></textarea>
+    </div>
+  </div>
+
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── State ──
+let S = {
+  logs: JSON.parse(localStorage.getItem('prp-logs') || '[]'),
+  principles: JSON.parse(localStorage.getItem('prp-principles') || '[]'),
+  settings: JSON.parse(localStorage.getItem('prp-settings') || '{}')
+};
+let selType = 'Other', selInt = 0;
+const intLabels = ['','mild','moderate','significant','strong','intense'];
+
+// ── Init ──
+document.addEventListener('DOMContentLoaded', () => {
+  loadSettings();
+  renderLogs();
+});
+
+// ── Tab navigation ──
+function go(tab) {
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['log','reflect','principles','settings'][i] === tab));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'reflect') renderReflect();
+  if (tab === 'principles') renderPrinciples();
+}
+
+// ── Type / Intensity ──
+function pickType(el, t) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  el.classList.add('on'); selType = t;
+}
+function setInt(n) {
+  selInt = n;
+  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i < n));
+  const el = document.getElementById('int-text');
+  el.textContent = intLabels[n];
+  el.style.color = n >= 4 ? 'var(--pain)' : 'var(--muted)';
+}
+
+// ── Log Pain ──
+function logPain() {
+  const text = document.getElementById('pain-text').value.trim();
+  if (!text) { toast('Write something first.'); return; }
+  const entry = {
+    id: Date.now(), type: selType, text, intensity: selInt,
+    time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
+    date: new Date().toLocaleDateString(), principle: null
+  };
+  S.logs.unshift(entry); save();
+  document.getElementById('pain-text').value = '';
+  setInt(0);
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+  document.querySelector('.chip:last-child').classList.add('on');
+  selType = 'Other';
+  renderLogs();
+  syncToSheets(entry);
+  toast('Logged. Keep going.');
+}
+
+// ── Render Logs ──
+function renderLogs() {
+  const today = new Date().toLocaleDateString();
+  const todayLogs = S.logs.filter(l => l.date === today);
+  document.getElementById('log-count').textContent = todayLogs.length;
+  const el = document.getElementById('logs-list');
+  if (!todayLogs.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◎</div>Nothing logged yet.<br>Capture pain as it happens — it only takes 30 sec.</div>`;
+    return;
+  }
+  el.innerHTML = todayLogs.map(l => `
+    <div class="log-entry ${l.principle?'done':''}">
+      <div class="log-meta">
+        <span class="log-badge">${l.type}</span>
+        <span class="log-time">${l.time}</span>
+      </div>
+      <div class="log-text">${esc(l.text)}</div>
+      ${l.intensity ? `<div class="mini-dots">${[1,2,3,4,5].map(i=>`<span class="mini-dot ${i<=l.intensity?'on':''}"></span>`).join('')}</div>` : ''}
+      ${l.principle ? `<div class="log-principle-tag">${esc(l.principle)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── Reflect ──
+function renderReflect() {
+  const today = new Date().toLocaleDateString();
+  const pending = S.logs.filter(l => l.date === today && !l.principle);
+  const el = document.getElementById('reflect-list');
+  if (!pending.length) {
+    const hasDone = S.logs.some(l => l.date === today);
+    el.innerHTML = hasDone
+      ? `<div class="empty"><div class="empty-icon">✦</div>All reflected for today.<br>Your principles are saved.</div>`
+      : `<div class="empty"><div class="empty-icon">◑</div>No logs to reflect on yet.<br>Go log some pain first.</div>`;
+    return;
+  }
+  el.innerHTML = pending.map(l => `
+    <div class="reflect-item" id="ri-${l.id}">
+      <div class="field-label">${l.type} · ${l.time} · ${l.intensity ? l.intensity+'/5' : 'intensity not set'}</div>
+      <div class="pain-recap">${esc(l.text)}</div>
+      <div class="ai-hint">Press AI Reflect for guided questions + principle draft</div>
+      <textarea id="rt-${l.id}" rows="4" placeholder="What's the real lesson? What will you do differently next time?"></textarea>
+      <div class="row-end mt-14">
+        <button class="btn btn-ghost" id="ai-btn-${l.id}" onclick="aiReflect(${l.id})">✦ AI Reflect</button>
+        <button class="btn btn-green" onclick="savePrinciple(${l.id})">Save Principle →</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ── AI Reflect ──
+async function aiReflect(id) {
+  const log = S.logs.find(l => l.id === id);
+  if (!log) return;
+  const btn = document.getElementById('ai-btn-' + id);
+  btn.innerHTML = '<span class="spin"></span> thinking...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/reflect', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: log.type, intensity: log.intensity, text: log.text })
+    });
+    const data = await res.json();
+    if (data.error) throw new Error(data.error);
+    const ta = document.getElementById('rt-' + id);
+    ta.value = data.questions.map((q,i) => `${i+1}. ${q}`).join('\n') + `\n\n→ Suggested principle:\n"${data.principle}"`;
+    toast('Done — edit the principle to make it yours.');
+  } catch(e) {
+    toast('AI unavailable. Write it yourself — that\'s more powerful.');
+  }
+  btn.innerHTML = '✦ AI Reflect';
+  btn.disabled = false;
+}
+
+// ── Save Principle ──
+function savePrinciple(id) {
+  const raw = document.getElementById('rt-' + id)?.value.trim();
+  if (!raw) { toast('Write your reflection first.'); return; }
+  const match = raw.match(/→ Suggested principle:\n?"?(.+)"?$/m);
+  const principle = match ? match[1].replace(/"/g,'') : raw;
+  const log = S.logs.find(l => l.id === id);
+  if (log) log.principle = principle;
+  S.principles.unshift({
+    id: Date.now(), date: new Date().toLocaleDateString(),
+    principle, context: log ? `${log.type}: ${log.text.substring(0,80)}${log.text.length>80?'...':''}` : ''
+  });
+  save(); renderReflect(); renderLogs();
+  syncToSheets({ type: 'principle', principle, date: new Date().toLocaleDateString() });
+  toast('Principle saved. You just got better.');
+}
+
+// ── Render Principles ──
+function renderPrinciples() {
+  document.getElementById('p-count').textContent = S.principles.length;
+  const el = document.getElementById('p-list');
+  if (!S.principles.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◈</div>No principles yet.<br>Complete a reflection to create your first one.</div>`;
+    return;
+  }
+  el.innerHTML = S.principles.map(p => `
+    <div class="principle-card">
+      <div class="p-date">${p.date}</div>
+      <div class="p-text">${esc(p.principle)}</div>
+      ${p.context ? `<div class="p-context">From: ${esc(p.context)}</div>` : ''}
+    </div>
+  `).join('');
+}
+
+// ── Google Sheets Sync ──
+async function syncToSheets(data) {
+  const url = S.settings['sheets-url'];
+  if (!url || !url.startsWith('https://script.google.com')) return;
+  try {
+    await fetch(url, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+  } catch(e) { /* silent fail */ }
+}
+
+// ── Settings ──
+function saveSetting(key, val) {
+  S.settings[key] = val;
+  localStorage.setItem('prp-settings', JSON.stringify(S.settings));
+}
+function loadSettings() {
+  const s = S.settings;
+  if (s['sheets-url']) document.getElementById('sheets-url').value = s['sheets-url'];
+  if (s['user-email']) document.getElementById('user-email').value = s['user-email'];
+
+  document.getElementById('apps-script-code').value = `function doPost(e) {
+  const sheet = SpreadsheetApp.getActiveSpreadsheet();
+  const data = JSON.parse(e.postData.contents);
+  if (data.type === 'principle') {
+    const ps = sheet.getSheetByName('Principles') || sheet.insertSheet('Principles');
+    ps.appendRow([data.date, data.principle]);
+  } else {
+    const ls = sheet.getSheetByName('Logs') || sheet.insertSheet('Logs');
+    ls.appendRow([data.date, data.time, data.type, data.intensity, data.text]);
+  }
+  return ContentService.createTextOutput('ok');
+}`;
+}
+
+function openSheetsGuide() {
+  const g = document.getElementById('sheets-guide');
+  g.style.display = g.style.display === 'none' ? 'block' : 'none';
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'pain-reflection-data.json'; a.click();
+}
+
+function clearData() {
+  if (!confirm('Delete all logs and principles? This cannot be undone.')) return;
+  S.logs = []; S.principles = []; save(); renderLogs();
+  toast('All data cleared.');
+}
+
+// ── Helpers ──
+function save() {
+  localStorage.setItem('prp-logs', JSON.stringify(S.logs));
+  localStorage.setItem('prp-principles', JSON.stringify(S.principles));
+}
+function esc(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
