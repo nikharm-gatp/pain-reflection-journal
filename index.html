@@ -250,6 +250,9 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 26px 0; 
       <div style="margin-top:12px;">
         <a href="#" onclick="openSheetsGuide(); return false;" style="font-size:11px;color:var(--accent2);text-decoration:none;">How to set this up ↗</a>
       </div>
+<div style="margin-top:10px;">
+<button id="sync-all-btn" class="btn btn-ghost" onclick="syncAll()" style="font-size:11px;padding:8px 14px;">↑ Sync All to Sheets</button>
+</div>
     </div>
 
     <div class="settings-block">
@@ -332,7 +335,7 @@ function logPain() {
   const entry = {
     id: Date.now(), type: selType, text, intensity: selInt,
     time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
-    date: new Date().toLocaleDateString(), principle: null
+    date: new Date().toLocaleDateString(), principle: null, synced: false
   };
   S.logs.unshift(entry); save();
   document.getElementById('pain-text').value = '';
@@ -342,6 +345,7 @@ function logPain() {
   selType = 'Other';
   renderLogs();
   syncToSheets(entry);
+  retryUnsynced();
   toast('Logged. Keep going.');
 }
 
@@ -463,7 +467,69 @@ async function syncToSheets(data) {
       headers: { 'Content-Type': 'text/plain' },
       body: JSON.stringify(data)
     });
-  } catch(e) { /* silent fail */ }
+    // Mark entry as synced
+    if (data.id) {
+      const entry = S.logs.find(l => l.id === data.id);
+      if (entry) { entry.synced = true; save(); }
+    }
+  } catch(e) { /* will retry next time */ }
+}
+
+// ── Sync All (backup) ──
+async function syncAll() {
+  const url = S.settings['sheets-url'];
+  if (!url || !url.startsWith('https://script.google.com')) {
+    toast('Add a Google Sheets URL in Settings first.');
+    return;
+  }
+  const btn = document.getElementById('sync-all-btn');
+  if (btn) { btn.textContent = 'Syncing...'; btn.disabled = true; }
+  let sent = 0, failed = 0;
+  // Sync all logs (prioritise unsynced, but send all for reliability)
+  for (const log of S.logs) {
+    try {
+      await fetch(url, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ id: log.id, date: log.date, time: log.time, type: log.type, intensity: log.intensity, text: log.text })
+      });
+      log.synced = true;
+      sent++;
+    } catch(e) { failed++; }
+  }
+  // Sync all principles
+  for (const p of S.principles) {
+    try {
+      await fetch(url, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ type: 'principle', id: p.id, date: p.date, principle: p.principle })
+      });
+      sent++;
+    } catch(e) { failed++; }
+  }
+  save();
+  if (btn) { btn.textContent = 'Sync All to Sheets'; btn.disabled = false; }
+  toast(failed === 0 ? `Synced ${sent} entries to Google Sheets ✓` : `${sent} synced, ${failed} failed — check your URL`);
+}
+
+
+// ── Retry unsynced entries in background ──
+async function retryUnsynced() {
+  const url = S.settings['sheets-url'];
+  if (!url || !url.startsWith('https://script.google.com')) return;
+  const unsynced = S.logs.filter(l => !l.synced);
+  for (const log of unsynced) {
+    try {
+      await fetch(url, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain' },
+        body: JSON.stringify({ id: log.id, date: log.date, time: log.time, type: log.type, intensity: log.intensity, text: log.text })
+      });
+      log.synced = true;
+    } catch(e) { break; } // stop on first failure, try next time
+  }
+  save();
 }
 
 // ── Settings ──
@@ -479,13 +545,23 @@ function loadSettings() {
   document.getElementById('apps-script-code').value = `function doPost(e) {
   try {
     const data = JSON.parse(e.postData.contents);
-    const sheet = SpreadsheetApp.getActiveSpreadsheet();
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
     if (data.type === 'principle') {
-      const ps = sheet.getSheetByName('Principles') || sheet.insertSheet('Principles');
-      ps.appendRow([data.date, data.principle]);
+      const ps = ss.getSheetByName('Principles') || ss.insertSheet('Principles');
+      // Deduplicate by id if present
+      if (data.id) {
+        const ids = ps.getDataRange().getValues().map(r => String(r[0]));
+        if (ids.includes(String(data.id))) return ContentService.createTextOutput('ok');
+      }
+      ps.appendRow([data.id || '', data.date, data.principle]);
     } else {
-      const ls = sheet.getSheetByName('Logs') || sheet.insertSheet('Logs');
-      ls.appendRow([data.date, data.time, data.type, data.intensity, data.text]);
+      const ls = ss.getSheetByName('Logs') || ss.insertSheet('Logs');
+      // Deduplicate by id if present
+      if (data.id) {
+        const ids = ls.getDataRange().getValues().map(r => String(r[0]));
+        if (ids.includes(String(data.id))) return ContentService.createTextOutput('ok');
+      }
+      ls.appendRow([data.id || '', data.date, data.time, data.type, data.intensity, data.text]);
     }
   } catch(err) {}
   return ContentService.createTextOutput('ok');
