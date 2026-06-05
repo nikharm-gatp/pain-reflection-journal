@@ -4,187 +4,180 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
 <title>Pain → Progress</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --bg: #0e0e0f;
-  --surface: #161618;
-  --surface2: #1e1e21;
-  --border: #2a2a2e;
-  --accent: #c8a96e;
-  --accent2: #7c6fcd;
-  --pain: #e05c5c;
-  --principle: #5cba8a;
-  --text: #e8e6e0;
-  --muted: #7a7870;
-  --dim: #4a4845;
+  --bg: #0e0e0f; --surface: #161618; --surface2: #1e1e21; --border: #2a2a2e;
+  --accent: #c8a96e; --accent2: #7c6fcd; --pain: #e05c5c; --principle: #5cba8a;
+  --text: #e8e6e0; --muted: #7a7870; --dim: #4a4845;
 }
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html,body { height:100%; background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; }
+body::before { content:''; position:fixed; inset:0; background:radial-gradient(circle at 20% 10%,rgba(200,169,110,0.05) 0%,transparent 55%),radial-gradient(circle at 80% 90%,rgba(124,111,205,0.05) 0%,transparent 55%); pointer-events:none; z-index:0; }
 
-* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+.app { position:relative; z-index:1; max-width:680px; margin:0 auto; padding:0 18px 100px; }
 
-html, body { height: 100%; background: var(--bg); color: var(--text); font-family: 'DM Mono', monospace; }
+/* HEADER */
+.header { padding:32px 0 22px; border-bottom:1px solid var(--border); margin-bottom:22px; display:flex; justify-content:space-between; align-items:flex-end; }
+.header-left h1 { font-family:'Playfair Display',serif; font-size:clamp(22px,5vw,32px); font-weight:400; line-height:1.15; }
+.header-left h1 em { font-style:italic; color:var(--accent); }
+.header-left p { font-size:10px; color:var(--muted); margin-top:6px; letter-spacing:0.06em; }
+.pending-badge { background:var(--pain); color:#fff; border-radius:100px; padding:6px 14px; font-size:11px; font-weight:500; display:none; }
+.pending-badge.show { display:block; }
 
-body::before {
-  content: '';
-  position: fixed; inset: 0;
-  background: radial-gradient(circle at 20% 10%, rgba(200,169,110,0.05) 0%, transparent 55%),
-              radial-gradient(circle at 80% 90%, rgba(124,111,205,0.05) 0%, transparent 55%);
-  pointer-events: none; z-index: 0;
-}
+/* TABS */
+.tabs { display:flex; gap:3px; background:var(--surface); border:1px solid var(--border); border-radius:8px; padding:4px; margin-bottom:24px; }
+.tab { flex:1; padding:9px 6px; background:none; border:none; color:var(--muted); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; cursor:pointer; border-radius:5px; transition:all 0.18s; position:relative; }
+.tab.active { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+.tab .dot { position:absolute; top:5px; right:8px; width:5px; height:5px; border-radius:50%; background:var(--pain); display:none; }
+.tab .dot.show { display:block; }
 
-.app { position: relative; z-index: 1; max-width: 680px; margin: 0 auto; padding: 0 20px 100px; }
+/* PANELS */
+.panel { display:none; animation:up 0.2s ease; }
+.panel.active { display:block; }
+@keyframes up { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
 
-/* ── HEADER ── */
-.header { padding: 40px 0 28px; border-bottom: 1px solid var(--border); margin-bottom: 28px; }
-.header-eyebrow { font-size: 10px; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent); margin-bottom: 10px; }
-.header h1 { font-family: 'Playfair Display', serif; font-size: clamp(24px, 6vw, 36px); font-weight: 400; line-height: 1.15; }
-.header h1 em { font-style: italic; color: var(--accent); }
-.header-sub { margin-top: 10px; font-size: 11px; color: var(--muted); letter-spacing: 0.06em; }
+/* RESOLVE SECTION — hero of the app */
+.resolve-section { margin-bottom:28px; }
+.resolve-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.resolve-title { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--accent); }
+.resolve-count { font-size:10px; color:var(--pain); font-weight:500; }
 
-/* ── TABS ── */
-.tabs { display: flex; gap: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px; margin-bottom: 28px; }
-.tab { flex: 1; padding: 9px 8px; background: none; border: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 5px; transition: all 0.18s; }
-.tab.active { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-.tab:hover:not(.active) { color: var(--text); }
+.pain-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--pain); border-radius:10px; padding:18px; margin-bottom:10px; }
+.pain-card.resolving { border-color:var(--accent); border-left-color:var(--accent); }
+.pain-card-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:10px; }
+.pain-card-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.pain-tag { font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); }
+.pain-age { font-size:9px; color:var(--dim); }
+.pain-text { font-size:13px; color:var(--text); line-height:1.65; margin-bottom:14px; }
+.mini-dots { display:flex; gap:3px; margin-bottom:12px; }
+.mini-dot { width:6px; height:6px; border-radius:50%; background:var(--border); }
+.mini-dot.on { background:var(--pain); }
 
-/* ── PANELS ── */
-.panel { display: none; animation: up 0.25s ease; }
-.panel.active { display: block; }
-@keyframes up { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+/* VOICE RECORDER */
+.voice-area { background:var(--bg); border:1px solid var(--border); border-radius:8px; padding:14px; margin-bottom:12px; }
+.voice-row { display:flex; align-items:center; gap:12px; }
+.record-btn { width:44px; height:44px; border-radius:50%; border:2px solid var(--pain); background:none; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:18px; transition:all 0.2s; flex-shrink:0; }
+.record-btn.recording { background:var(--pain); border-color:var(--pain); animation:pulse 1.2s infinite; }
+@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+.record-btn.has-audio { border-color:var(--principle); }
+.voice-status { font-size:11px; color:var(--muted); line-height:1.6; }
+.voice-status.recording { color:var(--pain); }
+.voice-status.done { color:var(--principle); }
+.voice-timer { font-size:18px; font-weight:300; color:var(--text); letter-spacing:0.1em; }
 
-/* ── CARDS ── */
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin-bottom: 20px; transition: border-color 0.2s; }
-.card:focus-within { border-color: rgba(200,169,110,0.4); }
+.ai-draft { background:rgba(124,111,205,0.08); border:1px solid rgba(124,111,205,0.2); border-radius:8px; padding:14px; margin-bottom:12px; display:none; }
+.ai-draft.show { display:block; animation:up 0.2s ease; }
+.ai-draft-label { font-size:9px; letter-spacing:0.15em; text-transform:uppercase; color:var(--accent2); margin-bottom:8px; }
+.ai-draft-text { font-size:13px; color:var(--text); line-height:1.65; font-family:'Playfair Display',serif; font-style:italic; }
+.ai-draft-edit { width:100%; background:transparent; border:none; color:var(--text); font-family:'Playfair Display',serif; font-style:italic; font-size:13px; line-height:1.65; resize:none; outline:none; margin-top:4px; }
 
-/* ── SECTION LABEL ── */
-.section-label { font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--dim); margin-bottom: 14px; }
-.field-label { font-size: 11px; color: var(--muted); letter-spacing: 0.06em; margin-bottom: 8px; }
+.card-actions { display:flex; gap:8px; justify-content:flex-end; }
+.btn { padding:10px 18px; border-radius:8px; border:none; font-family:'DM Mono',monospace; font-size:11px; letter-spacing:0.07em; cursor:pointer; transition:all 0.18s; display:inline-flex; align-items:center; gap:6px; }
+.btn-gold { background:var(--accent); color:#0e0e0f; font-weight:500; }
+.btn-gold:hover { opacity:0.88; }
+.btn-ghost { background:var(--surface2); color:var(--text); border:1px solid var(--border); }
+.btn-ghost:hover { border-color:var(--accent); }
+.btn-green { background:var(--principle); color:#0e0e0f; font-weight:500; }
+.btn-green:hover { opacity:0.88; }
+.btn-sm { padding:7px 14px; font-size:10px; }
+.btn:disabled { opacity:0.45; cursor:not-allowed; }
 
-/* ── TYPE CHIPS ── */
-.chips { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 18px; }
-.chip { padding: 6px 13px; border-radius: 100px; border: 1px solid var(--border); background: none; color: var(--muted); font-family: 'DM Mono', monospace; font-size: 11px; cursor: pointer; transition: all 0.15s; }
-.chip:hover { border-color: var(--accent); color: var(--accent); }
-.chip.on { background: var(--accent); border-color: var(--accent); color: #0e0e0f; font-weight: 500; }
+/* LOG PAIN */
+.log-card { background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:22px; margin-bottom:20px; }
+.log-card:focus-within { border-color:rgba(200,169,110,0.35); }
+.section-label { font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--dim); margin-bottom:12px; }
+.field-label { font-size:11px; color:var(--muted); margin-bottom:7px; }
+.chips { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:16px; }
+.chip { padding:5px 12px; border-radius:100px; border:1px solid var(--border); background:none; color:var(--muted); font-family:'DM Mono',monospace; font-size:11px; cursor:pointer; transition:all 0.15s; }
+.chip:hover { border-color:var(--accent); color:var(--accent); }
+.chip.on { background:var(--accent); border-color:var(--accent); color:#0e0e0f; font-weight:500; }
+textarea { width:100%; background:var(--bg); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:'DM Mono',monospace; font-size:13px; padding:12px 14px; resize:none; outline:none; transition:border-color 0.2s; line-height:1.65; margin-bottom:12px; }
+textarea:focus { border-color:var(--accent); }
+.intensity-row { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+.intensity-label { font-size:11px; color:var(--muted); }
+.dots { display:flex; gap:5px; }
+.dot { width:20px; height:20px; border-radius:50%; border:1px solid var(--border); background:none; cursor:pointer; transition:all 0.15s; }
+.dot:hover { border-color:var(--pain); }
+.dot.on { background:var(--pain); border-color:var(--pain); }
+.row-end { display:flex; justify-content:flex-end; }
 
-/* ── INPUTS ── */
-textarea, input[type="text"], input[type="email"] {
-  width: 100%; background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
-  color: var(--text); font-family: 'DM Mono', monospace; font-size: 13px;
-  padding: 13px 15px; resize: none; outline: none; transition: border-color 0.2s; line-height: 1.65;
-}
-textarea:focus, input[type="text"]:focus, input[type="email"]:focus { border-color: var(--accent); }
-textarea { margin-bottom: 14px; }
+/* TODAY'S LOGS */
+.logs-list { display:flex; flex-direction:column; gap:8px; }
+.log-entry { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--pain); border-radius:8px; padding:13px 15px; }
+.log-entry.done { border-left-color:var(--principle); opacity:0.7; }
+.log-meta { display:flex; justify-content:space-between; margin-bottom:5px; }
+.log-badge { font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--accent); }
+.log-time { font-size:9px; color:var(--dim); }
+.log-text { font-size:12px; color:var(--text); line-height:1.6; }
+.log-principle-tag { margin-top:7px; padding-top:7px; border-top:1px dashed var(--border); font-size:11px; color:var(--principle); font-style:italic; }
+.log-principle-tag::before { content:'→ '; font-style:normal; opacity:0.5; }
 
-/* ── INTENSITY ── */
-.intensity-row { display: flex; align-items: center; gap: 12px; margin: 12px 0 18px; }
-.intensity-label { font-size: 11px; color: var(--muted); white-space: nowrap; }
-.dots { display: flex; gap: 6px; }
-.dot { width: 22px; height: 22px; border-radius: 50%; border: 1px solid var(--border); background: none; cursor: pointer; transition: all 0.15s; }
-.dot:hover { border-color: var(--pain); }
-.dot.on { background: var(--pain); border-color: var(--pain); box-shadow: 0 0 8px rgba(224,92,92,0.3); }
+/* PRINCIPLES */
+.principle-card { background:var(--surface); border:1px solid var(--border); border-left:3px solid var(--principle); border-radius:8px; padding:16px; margin-bottom:10px; }
+.p-date { font-size:9px; color:var(--dim); margin-bottom:6px; }
+.p-text { font-family:'Playfair Display',serif; font-size:14px; color:var(--text); line-height:1.7; font-style:italic; }
+.p-context { font-size:10px; color:var(--muted); margin-top:6px; }
 
-/* ── BUTTONS ── */
-.btn { padding: 11px 22px; border-radius: 8px; border: none; font-family: 'DM Mono', monospace; font-size: 12px; letter-spacing: 0.07em; cursor: pointer; transition: all 0.2s; display: inline-flex; align-items: center; gap: 7px; }
-.btn-gold { background: var(--accent); color: #0e0e0f; font-weight: 500; }
-.btn-gold:hover { opacity: 0.88; transform: translateY(-1px); }
-.btn-ghost { background: var(--surface2); color: var(--text); border: 1px solid var(--border); }
-.btn-ghost:hover { border-color: var(--accent); }
-.btn-green { background: var(--principle); color: #0e0e0f; font-weight: 500; }
-.btn-green:hover { opacity: 0.88; transform: translateY(-1px); }
-.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-.row-end { display: flex; justify-content: flex-end; gap: 10px; }
-.mt-14 { margin-top: 14px; }
+/* EMPTY */
+.empty { text-align:center; padding:40px 20px; color:var(--dim); font-size:12px; line-height:2.2; }
+.empty-icon { font-size:26px; margin-bottom:8px; opacity:0.3; }
 
-/* ── LOG ENTRIES ── */
-.logs { display: flex; flex-direction: column; gap: 10px; }
-.log-entry { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--pain); border-radius: 8px; padding: 14px 16px; }
-.log-entry.done { border-left-color: var(--principle); }
-.log-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-.log-badge { font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent); }
-.log-time { font-size: 10px; color: var(--dim); }
-.log-text { font-size: 13px; color: var(--text); line-height: 1.6; }
-.mini-dots { display: flex; gap: 3px; margin-top: 7px; }
-.mini-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); }
-.mini-dot.on { background: var(--pain); }
-.log-principle-tag { margin-top: 9px; padding-top: 9px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--principle); font-style: italic; }
-.log-principle-tag::before { content: '→ '; font-style: normal; opacity: 0.5; }
+/* TOAST */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--surface2); border:1px solid var(--border); border-radius:8px; padding:10px 20px; font-size:12px; color:var(--text); transition:transform 0.25s ease; z-index:200; white-space:nowrap; max-width:88vw; text-align:center; }
+.toast.show { transform:translateX(-50%) translateY(0); }
+.toast.good { border-color:var(--principle); }
 
-/* ── REFLECT PANEL ── */
-.reflect-intro { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px 22px; margin-bottom: 20px; font-size: 13px; color: var(--muted); line-height: 1.8; }
-.reflect-intro strong { color: var(--accent); font-weight: 400; }
-.reflect-item { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 14px; }
-.pain-recap { font-size: 13px; color: var(--text); line-height: 1.6; padding: 11px 14px; background: var(--bg); border-radius: 6px; border-left: 2px solid var(--pain); margin-bottom: 14px; }
-.ai-hint { font-size: 11px; color: var(--accent2); margin-bottom: 10px; letter-spacing: 0.04em; }
-.ai-badge { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; color: var(--accent2); background: rgba(124,111,205,0.1); border: 1px solid rgba(124,111,205,0.2); border-radius: 100px; padding: 4px 10px; margin-bottom: 14px; }
-.pulse { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: blink 2s infinite; }
-@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.2} }
+/* SYNC */
+.sync-bar { font-size:9px; color:var(--dim); text-align:right; margin-bottom:6px; letter-spacing:0.06em; }
+.sync-bar.ok { color:var(--principle); }
+.sync-bar.err { color:var(--pain); }
 
-/* ── PRINCIPLES ── */
-.principle-card { background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--principle); border-radius: 8px; padding: 18px; margin-bottom: 10px; }
-.p-date { font-size: 10px; color: var(--dim); margin-bottom: 7px; }
-.p-text { font-family: 'Playfair Display', serif; font-size: 15px; color: var(--text); line-height: 1.65; font-style: italic; }
-.p-context { font-size: 11px; color: var(--muted); margin-top: 7px; font-family: 'DM Mono', monospace; }
+.spin { display:inline-block; width:10px; height:10px; border:2px solid rgba(255,255,255,0.2); border-top-color:currentColor; border-radius:50%; animation:s 0.7s linear infinite; }
+@keyframes s { to{transform:rotate(360deg)} }
+hr.div { border:none; border-top:1px solid var(--border); margin:22px 0; }
+.count { background:var(--surface2); border:1px solid var(--border); border-radius:100px; padding:1px 8px; font-size:9px; color:var(--muted); margin-left:6px; }
 
-/* ── SETTINGS ── */
-.settings-block { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 22px; margin-bottom: 16px; }
-.settings-block h3 { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); margin-bottom: 14px; font-weight: 400; }
-.settings-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; font-size: 12px; color: var(--muted); }
-.settings-row:last-child { margin-bottom: 0; }
-.settings-row input { max-width: 260px; font-size: 12px; padding: 9px 12px; }
-.toggle { position: relative; width: 36px; height: 20px; flex-shrink: 0; }
-.toggle input { opacity: 0; width: 0; height: 0; }
-.toggle-track { position: absolute; inset: 0; background: var(--border); border-radius: 100px; cursor: pointer; transition: 0.2s; }
-.toggle input:checked + .toggle-track { background: var(--principle); }
-.toggle-thumb { position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
-.toggle input:checked ~ .toggle-thumb { transform: translateX(16px); }
+/* ALL GOOD STATE */
+.all-good { background:rgba(92,186,138,0.06); border:1px solid rgba(92,186,138,0.2); border-radius:10px; padding:22px; text-align:center; margin-bottom:20px; }
+.all-good-icon { font-size:28px; margin-bottom:8px; }
+.all-good p { font-size:12px; color:var(--principle); line-height:1.9; }
 
-/* ── EMPTY ── */
-.empty { text-align: center; padding: 44px 20px; color: var(--dim); font-size: 12px; line-height: 2.2; }
-.empty-icon { font-size: 28px; margin-bottom: 10px; opacity: 0.35; }
-
-/* ── COUNT BADGE ── */
-.count { background: var(--surface2); border: 1px solid var(--border); border-radius: 100px; padding: 2px 9px; font-size: 10px; color: var(--muted); margin-left: 7px; }
-
-/* ── TOAST ── */
-.toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--surface2); border: 1px solid var(--border); border-radius: 8px; padding: 11px 22px; font-size: 12px; color: var(--text); transition: transform 0.3s ease; z-index: 200; white-space: nowrap; max-width: 90vw; text-align: center; }
-.toast.show { transform: translateX(-50%) translateY(0); }
-
-/* ── SPINNER ── */
-.spin { display: inline-block; width: 11px; height: 11px; border: 2px solid rgba(255,255,255,0.2); border-top-color: currentColor; border-radius: 50%; animation: s 0.7s linear infinite; }
-@keyframes s { to { transform: rotate(360deg); } }
-
-/* ── DIVIDER ── */
-hr.divider { border: none; border-top: 1px solid var(--border); margin: 26px 0; }
-
-@media (max-width: 480px) {
-  .header { padding: 28px 0 20px; }
-  .card, .reflect-item, .settings-block { padding: 18px; }
-}
+@media(max-width:480px){ .header{padding:22px 0 16px} .log-card{padding:16px} }
 </style>
 </head>
 <body>
 <div class="app">
 
-  <!-- HEADER -->
   <div class="header">
-    <div class="header-eyebrow">Daily Practice</div>
-    <h1>Pain + Reflection<br>= <em>Progress</em></h1>
-    <div class="header-sub">Log what hurts · Reflect tonight · Build a principle</div>
+    <div class="header-left">
+      <h1>Pain + Reflection<br>= <em>Progress</em></h1>
+      <p>Log it · Voice note it · Move on</p>
+    </div>
+    <div class="pending-badge" id="pending-badge">— to resolve</div>
   </div>
 
-  <!-- TABS -->
   <div class="tabs">
-    <button class="tab active" onclick="go('log')">Log</button>
-    <button class="tab" onclick="go('reflect')">Reflect</button>
+    <button class="tab active" onclick="go('resolve')">
+      Resolve<span class="dot" id="resolve-dot"></span>
+    </button>
+    <button class="tab" onclick="go('log')">Log Pain</button>
     <button class="tab" onclick="go('principles')">Principles</button>
-    <button class="tab" onclick="go('settings')">Settings</button>
   </div>
 
-  <!-- ════ LOG ════ -->
-  <div class="panel active" id="panel-log">
-    <div class="card">
+  <!-- ══ RESOLVE TAB ══ -->
+  <div class="panel active" id="panel-resolve">
+    <div class="sync-bar" id="sync-bar">loading...</div>
+    <div id="resolve-content">
+      <div class="empty"><div class="empty-icon">◎</div>Loading your pain logs...</div>
+    </div>
+  </div>
+
+  <!-- ══ LOG TAB ══ -->
+  <div class="panel" id="panel-log">
+    <div class="log-card">
       <div class="section-label">What type?</div>
-      <div class="chips" id="chips">
+      <div class="chips">
         <button class="chip" onclick="pickType(this,'Emotional')">Emotional</button>
         <button class="chip" onclick="pickType(this,'Conflict')">Conflict</button>
         <button class="chip" onclick="pickType(this,'Decision')">Decision</button>
@@ -194,96 +187,35 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 26px 0; 
         <button class="chip" onclick="pickType(this,'Regret')">Regret</button>
         <button class="chip on" onclick="pickType(this,'Other')">Other</button>
       </div>
-
-      <div class="field-label">What happened? (just dump it)</div>
-      <textarea id="pain-text" rows="4" placeholder="Describe the pain or discomfort. No filter needed."></textarea>
-
+      <div class="field-label">What happened?</div>
+      <textarea id="pain-text" rows="4" placeholder="Dump it here. No filter. 30 seconds."></textarea>
       <div class="intensity-row">
         <span class="intensity-label">Intensity</span>
-        <div class="dots" id="dots">
+        <div class="dots">
           <button class="dot" onclick="setInt(1)"></button>
           <button class="dot" onclick="setInt(2)"></button>
           <button class="dot" onclick="setInt(3)"></button>
           <button class="dot" onclick="setInt(4)"></button>
           <button class="dot" onclick="setInt(5)"></button>
         </div>
-        <span id="int-text" style="font-size:11px;color:var(--dim)">—</span>
+        <span id="int-text" style="font-size:10px;color:var(--dim)">—</span>
       </div>
-
       <div class="row-end">
-        <button class="btn btn-gold" onclick="logPain()">Log it →</button>
+        <button class="btn btn-gold" id="log-btn" onclick="logPain()">Log it →</button>
       </div>
     </div>
-
-    <hr class="divider">
+    <hr class="div">
     <div class="section-label">Today <span class="count" id="log-count">0</span></div>
-    <div class="logs" id="logs-list">
-      <div class="empty"><div class="empty-icon">◎</div>Nothing logged yet.<br>Capture pain as it happens — it only takes 30 sec.</div>
+    <div class="logs-list" id="logs-list">
+      <div class="empty"><div class="empty-icon">◎</div>Nothing yet today.</div>
     </div>
   </div>
 
-  <!-- ════ REFLECT ════ -->
-  <div class="panel" id="panel-reflect">
-    <div class="reflect-intro">
-      <strong>Before you sleep</strong> — go through today's moments one by one. Hit <em>AI Reflect</em> to get questions and a principle draft, then write your final version.
-    </div>
-    <div class="ai-badge"><span class="pulse"></span> AI-assisted · powered by Claude</div>
-    <div id="reflect-list">
-      <div class="empty"><div class="empty-icon">◑</div>No logs to reflect on yet.<br>Go log some pain first.</div>
-    </div>
-  </div>
-
-  <!-- ════ PRINCIPLES ════ -->
+  <!-- ══ PRINCIPLES TAB ══ -->
   <div class="panel" id="panel-principles">
     <div class="section-label">Your Principles <span class="count" id="p-count">0</span></div>
     <div id="p-list">
-      <div class="empty"><div class="empty-icon">◈</div>No principles yet.<br>Complete a reflection to create your first one.</div>
-    </div>
-  </div>
-
-  <!-- ════ SETTINGS ════ -->
-  <div class="panel" id="panel-settings">
-    <div class="settings-block">
-      <h3>Google Sheet Sync</h3>
-      <div class="field-label" style="margin-bottom:10px">Paste your Google Apps Script Web App URL below to sync all logs and principles to a Google Sheet automatically.</div>
-      <input type="text" id="sheets-url" placeholder="https://script.google.com/macros/s/..." oninput="saveSetting('sheets-url',this.value)">
-      <div style="margin-top:12px;">
-        <a href="#" onclick="openSheetsGuide(); return false;" style="font-size:11px;color:var(--accent2);text-decoration:none;">How to set this up ↗</a>
-      </div>
-<div style="margin-top:10px;">
-<button id="sync-all-btn" class="btn btn-ghost" onclick="syncAll()" style="font-size:11px;padding:8px 14px;">↑ Sync All to Sheets</button>
-</div>
-    </div>
-
-    <div class="settings-block">
-      <h3>Email Summaries</h3>
-      <div class="settings-row">
-        <span>Your email (for nightly summary)</span>
-        <input type="email" id="user-email" placeholder="you@email.com" oninput="saveSetting('user-email',this.value)" style="max-width:200px">
-      </div>
-    </div>
-
-    <div class="settings-block">
-      <h3>Data</h3>
-      <div class="settings-row">
-        <span>Export all data as JSON</span>
-        <button class="btn btn-ghost" onclick="exportData()" style="font-size:11px;padding:8px 14px;">Export</button>
-      </div>
-      <div class="settings-row">
-        <span>Clear all data</span>
-        <button class="btn btn-ghost" onclick="clearData()" style="font-size:11px;padding:8px 14px;color:var(--pain);border-color:var(--pain);">Clear</button>
-      </div>
-    </div>
-
-    <div id="sheets-guide" style="display:none" class="settings-block">
-      <h3>Setting up Google Sheet Sync</h3>
-      <div style="font-size:12px;color:var(--muted);line-height:1.9;">
-        1. Open <strong style="color:var(--text)">Google Sheets</strong> → create a new sheet<br>
-        2. Go to <strong style="color:var(--text)">Extensions → Apps Script</strong><br>
-        3. Paste the script below and click Deploy → New Deployment<br>
-        4. Copy the Web App URL and paste it above
-      </div>
-      <textarea rows="8" readonly style="margin-top:14px;font-size:11px;opacity:0.7" id="apps-script-code"></textarea>
+      <div class="empty"><div class="empty-icon">◈</div>No principles yet.<br>Resolve a pain to create your first one.</div>
     </div>
   </div>
 
@@ -292,313 +224,367 @@ hr.divider { border: none; border-top: 1px solid var(--border); margin: 26px 0; 
 
 <script>
 // ── State ──
-let S = {
-  logs: JSON.parse(localStorage.getItem('prp-logs') || '[]'),
-  principles: JSON.parse(localStorage.getItem('prp-principles') || '[]'),
-  settings: JSON.parse(localStorage.getItem('prp-settings') || '{}')
-};
+let state = { logs: [], principles: [] };
 let selType = 'Other', selInt = 0;
 const intLabels = ['','mild','moderate','significant','strong','intense'];
 
-// ── Init ──
-document.addEventListener('DOMContentLoaded', () => {
-  loadSettings();
-  renderLogs();
-});
+// Recorder state
+let mediaRecorder = null, audioChunks = [], recordingTimer = null, recordingSeconds = 0;
+let activeRecordings = {}; // logId -> { blob, transcript }
 
-// ── Tab navigation ──
+// ── Boot ──
+loadData();
+
+// ── Navigation ──
 function go(tab) {
-  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['log','reflect','principles','settings'][i] === tab));
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['resolve','log','principles'][i] === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + tab).classList.add('active');
-  if (tab === 'reflect') renderReflect();
   if (tab === 'principles') renderPrinciples();
+  if (tab === 'log') renderTodayLogs();
 }
 
-// ── Type / Intensity ──
-function pickType(el, t) {
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-  el.classList.add('on'); selType = t;
-}
-function setInt(n) {
-  selInt = n;
-  document.querySelectorAll('.dot').forEach((d,i) => d.classList.toggle('on', i < n));
-  const el = document.getElementById('int-text');
-  el.textContent = intLabels[n];
-  el.style.color = n >= 4 ? 'var(--pain)' : 'var(--muted)';
+// ── Load data ──
+async function loadData() {
+  setSyncBar('syncing...', '');
+  try {
+    const res = await fetch('/api/logs');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    state.logs = data.logs || [];
+    state.principles = data.principles || [];
+    setSyncBar('✓ synced', 'ok');
+  } catch(e) {
+    setSyncBar('⚠ offline', 'err');
+  }
+  renderResolve();
+  renderTodayLogs();
+  updateBadge();
 }
 
-// ── Log Pain ──
-function logPain() {
+// ── RESOLVE TAB ──
+function renderResolve() {
+  const unresolved = state.logs.filter(l => !l.principle);
+  const el = document.getElementById('resolve-content');
+  updateBadge();
+
+  if (!unresolved.length) {
+    el.innerHTML = `
+      <div class="all-good">
+        <div class="all-good-icon">✦</div>
+        <p>Nothing to resolve.<br>All pains have principles.</p>
+      </div>`;
+    return;
+  }
+
+  // Group: today vs older
+  const today = new Date().toLocaleDateString();
+  const todayItems = unresolved.filter(l => l.date === today);
+  const olderItems = unresolved.filter(l => l.date !== today);
+
+  let html = '';
+
+  if (olderItems.length) {
+    html += `<div class="resolve-header"><span class="resolve-title">From previous days</span><span class="resolve-count">${olderItems.length} pending</span></div>`;
+    html += olderItems.map(l => painCardHTML(l)).join('');
+    html += `<hr class="div">`;
+  }
+
+  if (todayItems.length) {
+    html += `<div class="resolve-header"><span class="resolve-title">Today</span><span class="resolve-count">${todayItems.length} pending</span></div>`;
+    html += todayItems.map(l => painCardHTML(l)).join('');
+  }
+
+  el.innerHTML = html;
+}
+
+function painCardHTML(l) {
+  const today = new Date().toLocaleDateString();
+  const age = l.date === today ? `today ${l.time}` : `${l.date}`;
+  return `
+    <div class="pain-card" id="pc-${l.id}">
+      <div class="pain-card-top">
+        <div class="pain-card-meta">
+          <span class="pain-tag">${l.type}</span>
+          <span class="pain-age">${age}</span>
+        </div>
+      </div>
+      <div class="pain-text">${esc(l.text)}</div>
+      ${l.intensity ? `<div class="mini-dots">${[1,2,3,4,5].map(i=>`<span class="mini-dot ${i<=l.intensity?'on':''}"></span>`).join('')}</div>` : ''}
+      <div class="voice-area">
+        <div class="voice-row">
+          <button class="record-btn" id="rec-btn-${l.id}" onclick="toggleRecord(${l.id})" title="Hold to record">🎙</button>
+          <div>
+            <div class="voice-status" id="rec-status-${l.id}">Tap to record your reflection</div>
+            <div class="voice-timer" id="rec-timer-${l.id}" style="display:none">0:00</div>
+          </div>
+        </div>
+      </div>
+      <div class="ai-draft" id="draft-${l.id}">
+        <div class="ai-draft-label">✦ AI Principle Draft — edit if needed</div>
+        <textarea class="ai-draft-edit" id="draft-text-${l.id}" rows="2"></textarea>
+      </div>
+      <div class="card-actions">
+        <button class="btn btn-ghost btn-sm" id="ai-btn-${l.id}" onclick="generatePrinciple(${l.id})" style="display:none">✦ Generate Principle</button>
+        <button class="btn btn-green btn-sm" id="approve-btn-${l.id}" onclick="approvePrinciple(${l.id})" style="display:none">✓ Approve & Close</button>
+      </div>
+    </div>`;
+}
+
+// ── VOICE RECORDING ──
+async function toggleRecord(logId) {
+  const btn = document.getElementById(`rec-btn-${logId}`);
+  const status = document.getElementById(`rec-status-${logId}`);
+  const timer = document.getElementById(`rec-timer-${logId}`);
+
+  if (mediaRecorder && mediaRecorder.state === 'recording') {
+    // Stop recording
+    mediaRecorder.stop();
+    return;
+  }
+
+  // Start recording
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+
+    mediaRecorder.onstop = async () => {
+      stream.getTracks().forEach(t => t.stop());
+      clearInterval(recordingTimer);
+      btn.classList.remove('recording');
+      btn.textContent = '✓';
+      btn.classList.add('has-audio');
+      timer.style.display = 'none';
+      status.textContent = 'Recording saved. Generating principle...';
+      status.className = 'voice-status done';
+
+      const blob = new Blob(audioChunks, { type: 'audio/webm' });
+      activeRecordings[logId] = { blob };
+
+      // Show generate button
+      document.getElementById(`ai-btn-${logId}`).style.display = 'inline-flex';
+
+      // Auto-trigger AI
+      await generatePrinciple(logId);
+    };
+
+    // Timer
+    recordingSeconds = 0;
+    timer.style.display = 'block';
+    timer.textContent = '0:00';
+    recordingTimer = setInterval(() => {
+      recordingSeconds++;
+      const m = Math.floor(recordingSeconds/60);
+      const s = recordingSeconds % 60;
+      timer.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+      if (recordingSeconds >= 120) mediaRecorder.stop(); // 2 min max
+    }, 1000);
+
+    mediaRecorder.start();
+    btn.classList.add('recording');
+    btn.textContent = '⏹';
+    status.textContent = 'Recording... tap to stop';
+    status.className = 'voice-status recording';
+
+  } catch(e) {
+    status.textContent = 'Mic access needed. Type your reflection below instead.';
+    // Show text fallback
+    const draft = document.getElementById(`draft-${logId}`);
+    draft.classList.add('show');
+    document.getElementById(`draft-text-${logId}`).placeholder = 'Type your reflection here...';
+    document.getElementById(`approve-btn-${logId}`).style.display = 'inline-flex';
+  }
+}
+
+// ── GENERATE PRINCIPLE FROM VOICE ──
+async function generatePrinciple(logId) {
+  const log = state.logs.find(l => l.id === logId);
+  if (!log) return;
+
+  const aiBtn = document.getElementById(`ai-btn-${logId}`);
+  const status = document.getElementById(`rec-status-${logId}`);
+  if (aiBtn) { aiBtn.innerHTML = '<span class="spin"></span> generating...'; aiBtn.disabled = true; }
+
+  try {
+    const rec = activeRecordings[logId];
+    let transcript = '';
+
+    // Transcribe if we have audio
+    if (rec?.blob) {
+      const formData = new FormData();
+      formData.append('audio', rec.blob, 'reflection.webm');
+      formData.append('logId', logId);
+      formData.append('painText', log.text);
+      formData.append('painType', log.type);
+
+      const res = await fetch('/api/transcribe', { method: 'POST', body: formData });
+      const data = await res.json();
+      transcript = data.transcript || '';
+    }
+
+    // Generate principle
+    const res2 = await fetch('/api/reflect', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ type: log.type, intensity: log.intensity, text: log.text, voiceTranscript: transcript })
+    });
+    const data2 = await res2.json();
+    if (data2.error) throw new Error(data2.error);
+
+    // Show draft
+    const draft = document.getElementById(`draft-${logId}`);
+    const draftText = document.getElementById(`draft-text-${logId}`);
+    draft.classList.add('show');
+    draftText.value = data2.principle;
+    draftText.style.height = 'auto';
+    draftText.style.height = draftText.scrollHeight + 'px';
+
+    document.getElementById(`approve-btn-${logId}`).style.display = 'inline-flex';
+    if (status) { status.textContent = 'Principle drafted — edit or approve'; status.className = 'voice-status done'; }
+    if (aiBtn) aiBtn.style.display = 'none';
+
+  } catch(e) {
+    if (status) { status.textContent = 'Could not generate. Type your principle below.'; }
+    const draft = document.getElementById(`draft-${logId}`);
+    draft.classList.add('show');
+    document.getElementById(`approve-btn-${logId}`).style.display = 'inline-flex';
+    if (aiBtn) { aiBtn.innerHTML = '✦ Retry'; aiBtn.disabled = false; }
+  }
+}
+
+// ── APPROVE & CLOSE ──
+async function approvePrinciple(logId) {
+  const draftText = document.getElementById(`draft-text-${logId}`)?.value?.trim();
+  if (!draftText) { toast('Add a principle first.'); return; }
+
+  const log = state.logs.find(l => l.id === logId);
+  const approveBtn = document.getElementById(`approve-btn-${logId}`);
+  approveBtn.innerHTML = '<span class="spin"></span> saving...';
+  approveBtn.disabled = true;
+
+  const principleEntry = {
+    id: Date.now(), date: new Date().toLocaleDateString(),
+    principle: draftText,
+    context: log ? `${log.type}: ${log.text.substring(0,80)}${log.text.length>80?'...':''}` : ''
+  };
+
+  try {
+    const res = await fetch('/api/logs', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'save_principle', data: { logId, principle: draftText, principleEntry } })
+    });
+    if (!res.ok) throw new Error();
+    if (log) log.principle = draftText;
+    state.principles.unshift(principleEntry);
+
+    // Animate card out
+    const card = document.getElementById(`pc-${logId}`);
+    if (card) { card.style.transition = 'opacity 0.4s, transform 0.4s'; card.style.opacity = '0'; card.style.transform = 'translateX(30px)'; setTimeout(() => renderResolve(), 400); }
+
+    updateBadge();
+    setSyncBar('✓ synced', 'ok');
+    toast('Pain resolved. Principle saved. ✦', true);
+  } catch(e) {
+    toast('Could not save. Check connection.');
+    approveBtn.innerHTML = '✓ Approve & Close';
+    approveBtn.disabled = false;
+  }
+}
+
+// ── LOG PAIN ──
+async function logPain() {
   const text = document.getElementById('pain-text').value.trim();
   if (!text) { toast('Write something first.'); return; }
+  const btn = document.getElementById('log-btn');
+  btn.innerHTML = '<span class="spin"></span>';
+  btn.disabled = true;
+
   const entry = {
     id: Date.now(), type: selType, text, intensity: selInt,
     time: new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'}),
     date: new Date().toLocaleDateString(), principle: null, synced: false
   };
-  S.logs.unshift(entry); save();
-  document.getElementById('pain-text').value = '';
-  setInt(0);
-  document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-  document.querySelector('.chip:last-child').classList.add('on');
-  selType = 'Other';
-  renderLogs();
-  syncToSheets(entry);
-  retryUnsynced();
-  toast('Logged. Keep going.');
+
+  try {
+    const res = await fetch('/api/logs', {
+      method: 'POST', headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ action: 'add_log', data: entry })
+    });
+    if (!res.ok) throw new Error();
+    state.logs.unshift(entry);
+    document.getElementById('pain-text').value = '';
+    setInt(0);
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+    document.querySelector('.chip:last-child').classList.add('on');
+    selType = 'Other';
+    renderTodayLogs();
+    updateBadge();
+    setSyncBar('✓ synced', 'ok');
+    toast('Logged. Resolve it at lunch.');
+  } catch(e) {
+    toast('Could not save. Check connection.');
+  }
+  btn.innerHTML = 'Log it →';
+  btn.disabled = false;
 }
 
-// ── Render Logs ──
-function renderLogs() {
+// ── RENDER TODAY LOGS ──
+function renderTodayLogs() {
   const today = new Date().toLocaleDateString();
-  const todayLogs = S.logs.filter(l => l.date === today);
+  const todayLogs = state.logs.filter(l => l.date === today);
   document.getElementById('log-count').textContent = todayLogs.length;
   const el = document.getElementById('logs-list');
   if (!todayLogs.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">◎</div>Nothing logged yet.<br>Capture pain as it happens — it only takes 30 sec.</div>`;
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◎</div>Nothing logged yet today.</div>`;
     return;
   }
   el.innerHTML = todayLogs.map(l => `
     <div class="log-entry ${l.principle?'done':''}">
-      <div class="log-meta">
-        <span class="log-badge">${l.type}</span>
-        <span class="log-time">${l.time}</span>
-      </div>
+      <div class="log-meta"><span class="log-badge">${l.type}</span><span class="log-time">${l.time}</span></div>
       <div class="log-text">${esc(l.text)}</div>
-      ${l.intensity ? `<div class="mini-dots">${[1,2,3,4,5].map(i=>`<span class="mini-dot ${i<=l.intensity?'on':''}"></span>`).join('')}</div>` : ''}
       ${l.principle ? `<div class="log-principle-tag">${esc(l.principle)}</div>` : ''}
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ── Reflect ──
-function renderReflect() {
-  const today = new Date().toLocaleDateString();
-  const pending = S.logs.filter(l => l.date === today && !l.principle);
-  const el = document.getElementById('reflect-list');
-  if (!pending.length) {
-    const hasDone = S.logs.some(l => l.date === today);
-    el.innerHTML = hasDone
-      ? `<div class="empty"><div class="empty-icon">✦</div>All reflected for today.<br>Your principles are saved.</div>`
-      : `<div class="empty"><div class="empty-icon">◑</div>No logs to reflect on yet.<br>Go log some pain first.</div>`;
-    return;
-  }
-  el.innerHTML = pending.map(l => `
-    <div class="reflect-item" id="ri-${l.id}">
-      <div class="field-label">${l.type} · ${l.time} · ${l.intensity ? l.intensity+'/5' : 'intensity not set'}</div>
-      <div class="pain-recap">${esc(l.text)}</div>
-      <div class="ai-hint">Press AI Reflect for guided questions + principle draft</div>
-      <textarea id="rt-${l.id}" rows="4" placeholder="What's the real lesson? What will you do differently next time?"></textarea>
-      <div class="row-end mt-14">
-        <button class="btn btn-ghost" id="ai-btn-${l.id}" onclick="aiReflect(${l.id})">✦ AI Reflect</button>
-        <button class="btn btn-green" onclick="savePrinciple(${l.id})">Save Principle →</button>
-      </div>
-    </div>
-  `).join('');
-}
-
-// ── AI Reflect ──
-async function aiReflect(id) {
-  const log = S.logs.find(l => l.id === id);
-  if (!log) return;
-  const btn = document.getElementById('ai-btn-' + id);
-  btn.innerHTML = '<span class="spin"></span> thinking...';
-  btn.disabled = true;
-  try {
-    const res = await fetch('/api/reflect', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: log.type, intensity: log.intensity, text: log.text })
-    });
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    const ta = document.getElementById('rt-' + id);
-    ta.value = data.questions.map((q,i) => `${i+1}. ${q}`).join('\n') + `\n\n→ Suggested principle:\n"${data.principle}"`;
-    toast('Done — edit the principle to make it yours.');
-  } catch(e) {
-    toast('AI unavailable. Write it yourself — that\'s more powerful.');
-  }
-  btn.innerHTML = '✦ AI Reflect';
-  btn.disabled = false;
-}
-
-// ── Save Principle ──
-function savePrinciple(id) {
-  const raw = document.getElementById('rt-' + id)?.value.trim();
-  if (!raw) { toast('Write your reflection first.'); return; }
-  const match = raw.match(/→ Suggested principle:\n?"?(.+)"?$/m);
-  const principle = match ? match[1].replace(/"/g,'') : raw;
-  const log = S.logs.find(l => l.id === id);
-  if (log) log.principle = principle;
-  S.principles.unshift({
-    id: Date.now(), date: new Date().toLocaleDateString(),
-    principle, context: log ? `${log.type}: ${log.text.substring(0,80)}${log.text.length>80?'...':''}` : ''
-  });
-  save(); renderReflect(); renderLogs();
-  syncToSheets({ type: 'principle', principle, date: new Date().toLocaleDateString() });
-  toast('Principle saved. You just got better.');
-}
-
-// ── Render Principles ──
+// ── RENDER PRINCIPLES ──
 function renderPrinciples() {
-  document.getElementById('p-count').textContent = S.principles.length;
+  document.getElementById('p-count').textContent = state.principles.length;
   const el = document.getElementById('p-list');
-  if (!S.principles.length) {
-    el.innerHTML = `<div class="empty"><div class="empty-icon">◈</div>No principles yet.<br>Complete a reflection to create your first one.</div>`;
+  if (!state.principles.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">◈</div>No principles yet.<br>Resolve a pain to create your first one.</div>`;
     return;
   }
-  el.innerHTML = S.principles.map(p => `
+  el.innerHTML = state.principles.map(p => `
     <div class="principle-card">
       <div class="p-date">${p.date}</div>
       <div class="p-text">${esc(p.principle)}</div>
       ${p.context ? `<div class="p-context">From: ${esc(p.context)}</div>` : ''}
-    </div>
-  `).join('');
+    </div>`).join('');
 }
 
-// ── Google Sheets Sync ──
-async function syncToSheets(data) {
-  const url = S.settings['sheets-url'];
-  if (!url || !url.startsWith('https://script.google.com')) return;
-  try {
-    await fetch(url, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify(data)
-    });
-    // Mark entry as synced
-    if (data.id) {
-      const entry = S.logs.find(l => l.id === data.id);
-      if (entry) { entry.synced = true; save(); }
-    }
-  } catch(e) { /* will retry next time */ }
-}
-
-// ── Sync All (backup) ──
-async function syncAll() {
-  const url = S.settings['sheets-url'];
-  if (!url || !url.startsWith('https://script.google.com')) {
-    toast('Add a Google Sheets URL in Settings first.');
-    return;
+// ── BADGE ──
+function updateBadge() {
+  const unresolved = state.logs.filter(l => !l.principle).length;
+  const badge = document.getElementById('pending-badge');
+  const dot = document.getElementById('resolve-dot');
+  if (unresolved > 0) {
+    badge.textContent = `${unresolved} to resolve`;
+    badge.classList.add('show');
+    dot.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+    dot.classList.remove('show');
   }
-  const btn = document.getElementById('sync-all-btn');
-  if (btn) { btn.textContent = 'Syncing...'; btn.disabled = true; }
-  let sent = 0, failed = 0;
-  // Sync all logs (prioritise unsynced, but send all for reliability)
-  for (const log of S.logs) {
-    try {
-      await fetch(url, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ id: log.id, date: log.date, time: log.time, type: log.type, intensity: log.intensity, text: log.text })
-      });
-      log.synced = true;
-      sent++;
-    } catch(e) { failed++; }
-  }
-  // Sync all principles
-  for (const p of S.principles) {
-    try {
-      await fetch(url, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ type: 'principle', id: p.id, date: p.date, principle: p.principle })
-      });
-      sent++;
-    } catch(e) { failed++; }
-  }
-  save();
-  if (btn) { btn.textContent = 'Sync All to Sheets'; btn.disabled = false; }
-  toast(failed === 0 ? `Synced ${sent} entries to Google Sheets ✓` : `${sent} synced, ${failed} failed — check your URL`);
 }
 
-
-// ── Retry unsynced entries in background ──
-async function retryUnsynced() {
-  const url = S.settings['sheets-url'];
-  if (!url || !url.startsWith('https://script.google.com')) return;
-  const unsynced = S.logs.filter(l => !l.synced);
-  for (const log of unsynced) {
-    try {
-      await fetch(url, {
-        method: 'POST', mode: 'no-cors',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ id: log.id, date: log.date, time: log.time, type: log.type, intensity: log.intensity, text: log.text })
-      });
-      log.synced = true;
-    } catch(e) { break; } // stop on first failure, try next time
-  }
-  save();
-}
-
-// ── Settings ──
-function saveSetting(key, val) {
-  S.settings[key] = val;
-  localStorage.setItem('prp-settings', JSON.stringify(S.settings));
-}
-function loadSettings() {
-  const s = S.settings;
-  if (s['sheets-url']) document.getElementById('sheets-url').value = s['sheets-url'];
-  if (s['user-email']) document.getElementById('user-email').value = s['user-email'];
-
-  document.getElementById('apps-script-code').value = `function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    const ss = SpreadsheetApp.getActiveSpreadsheet();
-    if (data.type === 'principle') {
-      const ps = ss.getSheetByName('Principles') || ss.insertSheet('Principles');
-      // Deduplicate by id if present
-      if (data.id) {
-        const ids = ps.getDataRange().getValues().map(r => String(r[0]));
-        if (ids.includes(String(data.id))) return ContentService.createTextOutput('ok');
-      }
-      ps.appendRow([data.id || '', data.date, data.principle]);
-    } else {
-      const ls = ss.getSheetByName('Logs') || ss.insertSheet('Logs');
-      // Deduplicate by id if present
-      if (data.id) {
-        const ids = ls.getDataRange().getValues().map(r => String(r[0]));
-        if (ids.includes(String(data.id))) return ContentService.createTextOutput('ok');
-      }
-      ls.appendRow([data.id || '', data.date, data.time, data.type, data.intensity, data.text]);
-    }
-  } catch(err) {}
-  return ContentService.createTextOutput('ok');
-};
-}`;
-}
-
-function openSheetsGuide() {
-  const g = document.getElementById('sheets-guide');
-  g.style.display = g.style.display === 'none' ? 'block' : 'none';
-}
-
-function exportData() {
-  const blob = new Blob([JSON.stringify(S, null, 2)], {type:'application/json'});
-  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-  a.download = 'pain-reflection-data.json'; a.click();
-}
-
-function clearData() {
-  if (!confirm('Delete all logs and principles? This cannot be undone.')) return;
-  S.logs = []; S.principles = []; save(); renderLogs();
-  toast('All data cleared.');
-}
-
-// ── Helpers ──
-function save() {
-  localStorage.setItem('prp-logs', JSON.stringify(S.logs));
-  localStorage.setItem('prp-principles', JSON.stringify(S.principles));
-}
-function esc(s) {
-  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
+// ── HELPERS ──
+function pickType(el, t) { document.querySelectorAll('.chip').forEach(c=>c.classList.remove('on')); el.classList.add('on'); selType=t; }
+function setInt(n) { selInt=n; document.querySelectorAll('.dot').forEach((d,i)=>d.classList.toggle('on',i<n)); const e=document.getElementById('int-text'); e.textContent=intLabels[n]; e.style.color=n>=4?'var(--pain)':'var(--muted)'; }
+function setSyncBar(msg,cls) { const e=document.getElementById('sync-bar'); e.textContent=msg; e.className='sync-bar'+(cls?' '+cls:''); }
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function toast(msg,good) { const t=document.getElementById('toast'); t.textContent=msg; t.className='toast'+(good?' good':'')+ ' show'; setTimeout(()=>t.className='toast',3000); }
 </script>
 </body>
 </html>

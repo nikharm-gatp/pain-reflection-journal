@@ -5,80 +5,41 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { type, intensity, text } = req.body || {};
+  const { type, intensity, text, voiceTranscript } = req.body || {};
   if (!text) return res.status(400).json({ error: 'Missing text' });
 
-  // ── Local reflection engine (no API key needed) ──
+  const voiceContext = voiceTranscript && voiceTranscript !== '[voice note recorded]'
+    ? `\nUser's voice reflection: "${voiceTranscript}"`
+    : '';
 
-  const t = (type || 'Other').toLowerCase();
-  const lvl = parseInt(intensity) || 0;
-  const words = text.toLowerCase();
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system: `You help people extract growth principles from painful moments. 
+Return ONLY valid JSON, no markdown:
+{"principle":"One sentence. Starts with action verb. Specific and actionable for next time this happens."}
+Tone: direct, honest. No therapy-speak.`,
+        messages: [{
+          role: 'user',
+          content: `Pain type: ${type||'Other'}\nIntensity: ${intensity||'—'}/5\nWhat happened: ${text}${voiceContext}`
+        }]
+      })
+    });
 
-  // Question banks by pain type
-  const qMap = {
-    frustration: [
-      'What exactly did you expect to happen — and where did that expectation come from?',
-      'If this happened again tomorrow, what one thing would you do differently in the first 60 seconds?',
-      'What does this frustration reveal about a standard you hold — is that standard worth keeping?',
-      'Who or what had control here that you assumed you had? What would it actually take to get that control?',
-      'What would handling this well have looked like — and how close did you get?',
-    ],
-    emotional: [
-      'What belief about yourself or the world got challenged in this moment?',
-      'If a close friend described this situation to you, what would you tell them?',
-      'What part of this feeling is about the event itself, and what part is older than today?',
-      'What would you need in order to feel differently — and is that within your reach?',
-      'What is this emotion trying to protect or change?',
-    ],
-    conflict: [
-      'What did the other person need that you may not have fully acknowledged?',
-      'What would you say differently if you could rewind to the first 30 seconds?',
-      'Is this a one-off or the latest episode in a recurring pattern?',
-      'What outcome were you actually optimising for in that moment — was it the right one?',
-      'If they told their version, what would be the most uncomfortably true part of it?',
-    ],
-    decision: [
-      'What information did you have at decision time, and what were you missing?',
-      'What fear or desire was loudest when you made the call — should it have been?',
-      'What would a person you deeply respect have decided here, and why?',
-      'If this turns out wrong, what will have been the root cause?',
-      'What would you need to put in place so this type of decision goes better next time?',
-    ],
-    failure: [
-      'At what specific point did this stop going well — what was the earliest warning sign?',
-      'What did you do right that deserves credit, even inside this failure?',
-      'What assumption turned out to be wrong, and how did you build it?',
-      'If you had to do this again with 20% more preparation, what would that 20% be?',
-      'Is this evidence of a skill gap, a system gap, or a one-off — and does that change what you do next?',
-    ],
-    fear: [
-      'What is the actual worst case here — and what would you do if it happened?',
-      'Is this fear protecting you from something real, or from something you have outgrown?',
-      'What has this fear caused you to avoid that might be worth doing anyway?',
-      'What would change if the probability of the feared outcome was cut in half?',
-      'Who would you be if you acted despite this fear — just this once?',
-    ],
-    regret: [
-      'What were you trying to protect or gain when you made that choice?',
-      'What did you know then that you did not let yourself fully hear?',
-      'What would forgiving yourself for this actually look like in practice?',
-      'What is one concrete thing in the next 24 hours that partially repairs or honours what went wrong?',
-      'If you carry this regret for ten more years, what will it have cost you?',
-    ],
-  };
-
-  const genericQ = [
-    'What is the one thing you most wish had gone differently — and what part was within your control?',
-    'What did this experience reveal about what you value most?',
-    'What would you tell someone you care about if they went through exactly this?',
-    'What small action in the next 24 hours would move you forward from this?',
-    'What belief drove your behaviour here — and does that belief still serve you?',
-  ];
-
-  // Pick question bank
-  let pool = genericQ;
-  for (const key of Object.keys(qMap)) {
-    if (t.includes(key) || words.includes(key)) { pool = qMap[key]; break; }
+    const data = await response.json();
+    const raw = data.content?.map(c => c.text || '').join('') || '';
+    const parsed = JSON.parse(raw.replace(/```json|```/g,'').trim());
+    return res.status(200).json(parsed);
+  } catch (e) {
+    return res.status(500).json({ error: 'AI unavailable', details: e.message });
   }
 
   // Shuffle and pick 2
