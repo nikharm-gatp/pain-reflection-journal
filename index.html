@@ -240,6 +240,7 @@ function go(tab) {
   document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', ['resolve','log','principles'][i] === tab));
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-' + tab).classList.add('active');
+  if (tab === 'resolve') renderResolve();
   if (tab === 'principles') renderPrinciples();
   if (tab === 'log') renderTodayLogs();
 }
@@ -520,6 +521,7 @@ async function logPain() {
     document.querySelector('.chip:last-child').classList.add('on');
     selType = 'Other';
     renderTodayLogs();
+    renderResolve();
     updateBadge();
     setSyncBar('✓ synced', 'ok');
     toast('Logged. Resolve it at lunch.');
